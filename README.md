@@ -1,4 +1,4 @@
 # NYK's WEB
 ## 计算机图形学
 ### Lab1
-[Lab a](/webGL/web/b.html)
+[Lab a](/JS/common/webgl-utils.js)
