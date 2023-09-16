@@ -5,4 +5,4 @@
  [Lab c](/webGL/web/c.html)  &nbsp;  [Lab d](/webGL/web/d.html) &nbsp;   [Lab e](/webGL/web/e.html)
 
 - Lab 2
-- [Lab a](/webGL/web2/a.html) &nbsp;
+  [Lab a](/webGL/web2/a.html) &nbsp;
