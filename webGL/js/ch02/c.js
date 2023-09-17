@@ -7,11 +7,12 @@ var gl;
 
 var points = [];
 
-var twist=true;
+var twist=false;
 var radius=1.0;
 
 function tessellaTriangle( a, b, c ){
 	var theta=document.getElementById("angle").value;
+	var twist=document.getElementById("change").value;
     //var k;
     var zerovec3 = vec3.create();
     vec3.zero( zerovec3 );
@@ -21,7 +22,7 @@ function tessellaTriangle( a, b, c ){
     var b_new = vec3.create();
     var c_new = vec3.create();
 
-    if( twist == false ){
+    if( twist == 1 ){
         vec3.rotateZ( a_new, a, zerovec3, radian );
         vec3.rotateZ( b_new, b, zerovec3, radian );
         vec3.rotateZ( c_new, c, zerovec3, radian );
@@ -32,7 +33,7 @@ function tessellaTriangle( a, b, c ){
         points.push( c_new[0], c_new[1], c_new[2] );
         points.push( c_new[0], c_new[1], c_new[2] );
         points.push( a_new[0], a_new[1], a_new[2] );
-    }else{
+    }else if(twist==2){
         var d_a = Math.sqrt( a[0] * a[0] + a[1] * a[1] );
         var d_b = Math.sqrt( b[0] * b[0] + b[1] * b[1] );
         var d_c = Math.sqrt( c[0] * c[0] + c[1] * c[1] );
