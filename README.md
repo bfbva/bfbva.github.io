@@ -5,4 +5,5 @@
  [Lab c](/webGL/web/c.html)  &nbsp;  [Lab d](/webGL/web/d.html) &nbsp;   [Lab e](/webGL/web/e.html)
 
 - Lab 2  <br>
-  [Lab a](/webGL/web2/a.html) &nbsp;
+  [Lab a](/webGL/web2/a.html) &nbsp;  [Lab b](/webGL/web2/b.html)   &nbsp;
+ [Lab c](/webGL/web2/c.html)  &nbsp;
