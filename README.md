@@ -12,8 +12,7 @@
 
 - Lab 4  <br>
   1. 2-1  <br>
-  [2-1 a](/webGL/web4/2-1a.html) &nbsp;&nbsp; [2-1 d](/webGL/web4/2-1d.html) &nbsp;&nbsp;   
- 
-  
+  [2-1 a](/webGL/web4/2-1a.html) &nbsp;&nbsp; [2-1 b](/webGL/web4/2-1b.html) &nbsp;&nbsp;
+[2-1 c](/webGL/web4/2-1c.html) &nbsp;&nbsp; [2-1 d](/webGL/web4/2-1d.html) &nbsp;&nbsp; 
   3. 2-2
   
