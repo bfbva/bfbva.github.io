@@ -7,5 +7,11 @@
 - Lab 2  <br>
   [Lab a](/webGL/web2/a.html) &nbsp;&nbsp;  [Lab b](/webGL/web2/b.html)   &nbsp;&nbsp;
  [Lab c](/webGL/web2/c.html)  &nbsp;&nbsp;
-- Lab 2  <br>
+- Lab 3  <br>
   [Lab a](/webGL/web3/a.html) &nbsp;&nbsp; [Lab b](/webGL/web3/b.html) &nbsp;&nbsp; 
+
+- Lab 4  <br>
+  1. 2-1
+  [2-1 a](/webGL/web4/2-1 a.html) &nbsp;&nbsp; [2-1 d](/webGL/web4/2-1 d.html) &nbsp;&nbsp; 
+  2. 2-2
+  
