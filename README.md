@@ -11,7 +11,7 @@
   [Lab a](/webGL/web3/a.html) &nbsp;&nbsp; [Lab b](/webGL/web3/b.html) &nbsp;&nbsp; 
 
 - Lab 4  <br>
-  1. 2-1
+  1. 2-1  <br>
   [2-1 a](/webGL/web4/2-1a.html) &nbsp;&nbsp; [2-1 d](/webGL/web4/2-1d.html) &nbsp;&nbsp;   
  
   
