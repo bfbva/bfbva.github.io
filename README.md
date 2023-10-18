@@ -15,4 +15,6 @@
   [2-1 a](/webGL/web4/2-1a.html) &nbsp;&nbsp; [2-1 b/c](/webGL/web4/2-1bc.html) &nbsp;&nbsp;
  [2-1 d](/webGL/web4/2-1d.html) &nbsp;&nbsp; 
   3. 2-2
+ - Lab 5  <br>
+ [web5](/webGL/web5/web5.html) &nbsp;&nbsp;
   
