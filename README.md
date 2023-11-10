@@ -20,4 +20,7 @@
   
  - Lab 6  <br>
  [Lab 6](/webGL/web6/6.html) &nbsp;&nbsp;
+
+ - Lab 7  <br>
+ [Lab a](/webGL/web7/01.html) &nbsp;&nbsp; [Lab b](/webGL/web7/01.html) &nbsp;&nbsp; 
   
