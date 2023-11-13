@@ -147,12 +147,12 @@ window.onload = function initWindow(){
     configureCubeMapTexture();
     
     if( texture === null ){
-        var url = "../../webGL/textures/world.jpg";
+        var url = "../../webGL/textures/31.jpg";
         configureTexture( url );
     }
 
     if( bumpTexture === null ){
-        var url = "../../webGL/textures/world.jpg";
+        var url = "../../webGL/textures/31.jpg";
         configureBumpTexture(url);
     }
 
