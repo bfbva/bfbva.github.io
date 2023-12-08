@@ -24,3 +24,4 @@
  - Lab 7  <br>
  [Lab a](/webGL/web7/01.html) &nbsp;&nbsp; [Lab b](/webGL/web7/b.html) &nbsp;&nbsp; 
   
+[ \begin{bmatrix} \frac{\sqrt{2}}{2} & -\frac{\sqrt{2}}{2} & 0 & 0 \ \frac{\sqrt{2}}{2} & \frac{\sqrt{2}}{2} & 0 & 0 \ 0 & 0 & -1 & 0 \ 0 & 0 & 0 & 1 \end{bmatrix} ]
