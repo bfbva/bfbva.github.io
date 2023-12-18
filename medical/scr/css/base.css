@@ -1,0 +1,26 @@
+
+.Medical_Image_Viewer {
+    width: 90%;
+    height: 90%;
+    margin: 25px auto;
+    background-color: black;
+    font-family: sans-serif;
+}
+
+
+/* This is used to display a "JavaScript required" message. */
+.Medical_Image_Viewer:before {
+    position: relative;
+    content: "Medical_Image_Viewer requires JavaScript...";
+    display: block;
+    top: 45%;
+    color: red;
+    margin: 0 auto;
+    font-size: 18px;
+    font-family: sans-serif;
+}
+
+
+.Medical_Image_Viewer-fullscreen {
+    height: 100%;
+}
