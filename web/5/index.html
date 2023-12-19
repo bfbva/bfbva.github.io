@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>后台管理</title>
+		<style type="text/css">
+			body{background-color:#ebeee8;
+			}
+			#title{margin: auto;  width: 1300px;}
+			h1{color: #8ba3c7;}
+			
+			#fix{
+				display: none;
+				background-color: #8ba3c7;
+				border-radius: 50px; border-color: black;border-style: groove;
+				position: fixed;
+				width: 700px;
+				height: 500px;
+				top:50%;
+				left: 50%;
+				z-index: 3;
+				margin-top: -300px;
+				margin-left: -350px;	
+			}
+			.c{
+				position: relative;
+				left: 50px;
+				top: 30px;
+			}
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript"  src="1111.js"></script>
+		<div id="title">
+			<h1>影视网站后台记录管理（待播剧）</h1><hr />
+			<h2>欢迎各位补充！！！</h2>
+			<div id="bick">
+			    <input type="button" id="ad" size="45" style="height: 35px;" onclick="add()" value="添加一条"/>
+            </div>
+			<div id="fix" >
+				<div class="c">
+				    <p>名称：<input type="text" id="name" style="height: 30px"/></p>
+				    <p>类别：<input type="text" id="sort" style="height: 30px"/></p>
+				    <p>主演：<input type="text"  id="actor"style="height: 30px"/></p>
+				    <p>简介：<input type="text" id="inter" size="75" style="height: 70px" /></p>
+				    
+					<form method="post" enctype="multipart/form-data" id="upload">
+				　　上传海报：
+				　　    <div id="preview"></div>
+				　　    <p><input type="file" id="testfile" name="test" style="width: 80%;" accept="image/gif, image/jpeg, image/png, image/jpg"></p>
+				        
+				    </form>
+					<p><input type="button" value="确定添加" onclick="change()"/>&nbsp;
+					<input type="button" value="确定修改" onclick="modify2()"/>&nbsp;
+					<input type="button" value="取消" onclick="clos()"/></p>							    
+				</div>
+			</div>
+			<br /><br />
+			
+			<table id="tele" border="2" cellspacing="0">
+				<thead>
+				<tr align="center">
+					<td width="200">海报</td> <td width="170">名称</td> <td width="100">类别</td> 
+					<td width="100">主演</td> <td width="500" >内容简介</td> <td width="100">操作</td>
+				</tr>
+				</thead>
+				<tbody>
+				<tr align="center" >
+					<td height="300"> <img src="1.png" width="80%"/> </td>
+					<td>我们的西南联大</td>
+					<td>青春、励志、革命、历史</td>
+					<td>周也 王鹤棣</td>
+					<td>该剧以1937年至1946年，由清华大学、北京大学、南开大学在昆明临时合并共建的西南联大的历史为背景，讲述了硝烟弥漫下，一群铁骨铮铮的热血青年，
+					不畏枪林弹雨，不惧艰难困苦，历经重重严峻考验，坚定科学救国的信念，成为国家杰出人才的故事。</td>
+					<td>
+						<input type="button" name="replace" value="修改"  onclick="modify1(this)"/><br /> <br />
+						<input type="button" onclick="delerow(this)" value="删除"/>
+					</td>
+				</tr>
+				<tr align="center" >
+					<td height="300"> <img src="2.png" width="80%"/> </td>
+					<td>三体</td>
+					<td>科幻</td>
+					<td>张鲁一 于和伟 陈瑾 王子文</td>
+					<td>讲述了地球基础科学研究遭遇异常扰动，引发科学界惶恐动荡，纳米物理学家汪淼与刑警史强联手调查，
+					共同揭开了地外未知文明“三体”世界的神秘面纱，并随全人类一道与即将入侵的三体人展开博弈的故事</td>
+					<td>
+						<input type="button" name="replace" value="修改" onclick="modify1(this)"/><br /> <br />
+						<input type="button" onclick="delerow(this)" value="删除"/>
+					</td>
+				</tr>
+				<tr align="center" >
+					<td height="300"> <img src="3.png" width="80%"/> </td>
+					<td>长月烬明</td>
+					<td>古装、玄幻</td>
+					<td>罗云熙 白鹿</td>
+					<td>讲述了衡阳宗掌门之女黎苏苏为了解救被魔神澹台烬统治折磨的世界，回到五百年前，与一代魔神爱相杀的故事</td>
+					<td>
+						<input type="button" name="replace"  value="修改" onclick="modify1(this)"/><br /> <br />
+						<input type="button" onclick="delerow(this)" value="删除"/>
+					</td>
+				</tr>	
+			    </tbody>
+			</table><br /><hr />
+			<h2>请仔细核对信息是否有误！</h2><br />	
+		</div>
+		
+		
+	</body>
+</html>
