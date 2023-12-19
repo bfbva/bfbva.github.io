@@ -1,0 +1,21 @@
+
+.Medical_Image_Viewer-viewer {
+    line-height: 1;
+    font-family: sans-serif;
+}
+
+
+.Medical_Image_Viewer-viewer div, .Medical_Image_Viewer-viewer canvas {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    font-size: 100%;
+    vertical-align: baseline;
+    font-family: sans-serif;
+}
+
+
+.Medical_Image_Viewer-viewer canvas {
+    cursor: crosshair;
+}
