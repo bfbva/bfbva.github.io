@@ -24,3 +24,5 @@
  - Lab 7  <br>
  [Lab a](/webGL/web7/01.html) &nbsp;&nbsp; [Lab b](/webGL/web7/b.html) &nbsp;&nbsp; 
 
+## 医学图像浏览
+** [一个网站链接](/medical/index.html) &nbsp;&nbsp; **
