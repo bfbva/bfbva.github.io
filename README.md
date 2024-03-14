@@ -25,6 +25,6 @@
  [Lab a](/webGL/web7/01.html) &nbsp;&nbsp; [Lab b](/webGL/web7/b.html) &nbsp;&nbsp; 
 
 ## web程序设计
- [网站1](/webGL/web5/web5.html) &nbsp;&nbsp; [网站2](/webGL/web5/web5.html) &nbsp;&nbsp; 
- [网站3](/webGL/web5/web5.html) &nbsp;&nbsp; [网站4](/webGL/web5/web5.html) &nbsp;&nbsp; [网站5](/webGL/web5/web5.html) &nbsp;&nbsp;
+ [网站1](/web/1/重生之门2.html) &nbsp;&nbsp; [网站2](/web/2/index.html) &nbsp;&nbsp; 
+ [网站3](/web/3/index.html) &nbsp;&nbsp; [网站4](/web/4/index.html) &nbsp;&nbsp; [网站5](/web/5/index.html) &nbsp;&nbsp;
 
