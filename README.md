@@ -1,6 +1,9 @@
 # NYK's WEB
 ## UI设计
 [千年华裳——汉服爱好者交流平台](/ui/index.html)
+## 竞赛项目——声纹识别
+网盘链接：https://pan.baidu.com/s/1qWzDQS1BHCYZsGlDJofr4Q
+提取码：25sg
 ## 计算机图形学
 - Lab 1 <br>
 [Lab a](/webGL/web/a.html) &nbsp;&nbsp;  [Lab b](/webGL/web/b.html)   &nbsp;&nbsp;
