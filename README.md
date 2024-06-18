@@ -29,7 +29,7 @@
  - Lab 7  <br>
  [Lab a](/webGL/web7/01.html) &nbsp;&nbsp; [Lab b](/webGL/web7/b.html) &nbsp;&nbsp;
 
-- 课程设计 <br>  [Work](/webGL/web8/work.html)
+- 课程设计 <br>  [Work](/webGL/web8/walk.html)
 
 ## web程序设计
  [网站1](/web/1/重生之门2.html) &nbsp;&nbsp; [网站2](/web/2/index.html) &nbsp;&nbsp; 
