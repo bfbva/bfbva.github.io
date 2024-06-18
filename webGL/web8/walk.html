@@ -1,0 +1,702 @@
+
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+
+  <meta charset="UTF-8">
+  
+
+  
+<style>
+/**
+* Author: Vinces
+* Website: https://vinces.io
+* v.0.1
+*/
+@import url("https://fonts.googleapis.com/css?family=BenchNine");
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: BenchNine, sans-serif;
+}
+
+.world {
+  background: #2980b9;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to bottom, #2980b9, #6dd5fa, #ffffff);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to bottom, #2980b9, #6dd5fa, #ffffff);
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.input-group {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  padding: 1rem;
+  color: black;
+  font-size: 18px;
+  z-index: 999;
+}
+.input-group > * {
+  display: block;
+}
+.input-group > * + * {
+  margin-top: 0.5rem;
+}
+
+.copy {
+  margin: 15px;
+  font-size: 14px;
+  font-weight: bold;
+  color: black;
+  position: absolute;
+  bottom: 0;
+  left: 0%;
+  z-index: 999;
+}
+.copy a {
+  color: #2980b9;
+  text-decoration: none;
+  font-size: 16px;
+}
+</style>
+
+
+
+</head>
+
+<body >
+  <canvas data-canvas class="world"></canvas>
+
+<div class="input-group">
+	<label for="bothAngle">Move Character (Wip)</label>
+	<input type="range" min="-90" max="90" value='0' data-input-both id="bothAngle">
+</div>
+
+
+<script type="text/javascript" src="https://repo.bfw.wiki/bfwrepo/js/three.123.js"></script>
+<script type="text/javascript" src="https://repo.bfw.wiki/bfwrepo/js/OrbitControls.min.js"></script>
+<script type="text/javascript" src="https://repo.bfw.wiki/bfwrepo/js/Stats-16.js"></script>
+      <script >
+
+var container = { width: window.innerWidth, height: window.innerHeight };
+
+/**
+* HELPERS
+* ------------------------------------------------------------------------
+*/
+// 角度转换为弧度
+const degreesToRadians = degrees => {
+  return degrees * (Math.PI / 180);
+};
+// 为对象添加阴影支持
+const shadowSupport = group => {
+  group.traverse(object => {
+    if (object instanceof THREE.Mesh) {
+      object.castShadow = true;
+      object.receiveShadow = true;
+    }
+  });
+};
+// 获取随机数
+const randomize = (min, max, float = false) => {
+  const val = Math.random() * (max - min) + min;
+  if (float) {
+    return val;
+  }
+  return Math.floor(val);
+};
+// Box Helper 
+const boxHelperSupport = group => {
+  const box = new THREE.BoxHelper(group, 0xffff00);
+  scene.add(box);
+};
+// Random MORE VERTICES
+const map = (val, smin, smax, emin, emax) => (emax - emin) * (val - smin) / (smax - smin) + emin;
+//添加随机偏移量
+const jitter = (geo, per) => geo.vertices.forEach(v => {
+  v.x += map(Math.random(), 0, 1, -per, per);
+  v.y += map(Math.random(), 0, 1, -per, per);
+  v.z += map(Math.random(), 0, 1, -per, per);
+});
+// 限定范围
+const chopBottom = (geo, bottom) => geo.vertices.forEach(v => v.y = Math.max(v.y, bottom));
+const chopTop = (geo, top) => geo.vertices.forEach(v => v.y = Math.min(v.y, top));
+
+
+
+/**
+* OBJECTS : SCENE, ISLAND, BBLOCK
+* ------------------------------------------------------------------------
+*/
+class Scene {
+  /*该代码定义了一个`Scene`类的构造函数，根据传递给它的参数初始化了一个包括相机、场景、控制器和渲染器的3D场景。
+
+`params`对象包含各种相机属性的默认值，例如位置、纵横比、视野、近平面和远平面。这些值可以通过在初始化新的`Scene`实例时传入自定义的`params`对象来进行覆盖。
+
+`initStats`方法初始化了一个Stats对象，该对象提供了场景的实时性能指标，如每秒帧数、内存使用情况和渲染时间。它将Stats对象添加到DOM中，并将其定位在屏幕左上角。
+
+总的来说，该代码建立了一个具备性能监控功能的3D场景的基本结构。*/
+  constructor(params) {
+    this.params = {
+      x: 0,
+      y: 0,
+      z: 0,
+      aspectRatio: container.width / container.height,
+      fieldOfView: 60,
+      nearPlane: 0.1,
+      farPlane: 3000,
+      ...params };
+
+    this.camera;
+    this.scene;
+    this.controls;
+    this.renderer;
+  }
+  initStats() {
+    // STATS
+    this.stats = new Stats();
+    this.stats.setMode(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+    // align top-left
+    this.stats.domElement.style.position = "absolute";
+    this.stats.domElement.style.left = "0px";
+    this.stats.domElement.style.top = "0px";
+    document.body.appendChild(this.stats.domElement);
+  }
+/*initScene方法初始化一个新的THREE.Scene对象，并将其背景颜色设置为null。
+
+initCamera方法初始化一个新的THREE.PerspectiveCamera对象，。它还设置摄像机的位置和方向，并更新其投影矩阵。
+
+摄像机定位在(6, 8.5, 25)，并使用lookAt方法朝向场景中心。
+
+这段代码为具有摄像机的3D场景设置了基本结构，并将摄像机定位为从特定透视图观看场景。*/
+
+  initScene() {
+    this.scene = new THREE.Scene();
+    this.scene.background = null; /*new THREE.Color(0xa3e2ff)*/
+  }
+  initCamera() {
+    this.camera = new THREE.PerspectiveCamera(
+    this.params.fieldOfView,
+    this.params.aspectRatio,
+    this.params.nearPlane,
+    this.params.farPlane);
+
+    //this.camera.position.set(0, 3.5, 22);
+    this.camera.updateProjectionMatrix();
+    this.camera.position.set(6, 8.5, 25);
+    this.camera.lookAt(this.scene.position);
+    //this.camera.position.z = 12;
+    // call this only in static scenes (i.e., if there is no animation loop)
+  }
+/*initControls方法初始化OrbitControls以控制相机，允许用户围绕场景旋转。它设置了从受控对象到相机的最小和最大距离。
+
+initRenderer方法使用指定的画布、alpha、抗锯齿和性能偏好设置来设置WebGLRenderer。它还根据容器的宽度和高度设置了渲染器的大小和像素比。此外，它还为渲染器启用了物理正确的光线和柔和阴影。
+
+initLights方法创建并配置了两种类型的光线：DirectionalLight和HemisphereLight。这些光线被添加到场景中，并为DirectionalLight设置了特定的属性，如位置、投射阴影和阴影图大小。
+
+总的来说，这些方法为3D场景初始化了相机控制、渲染器和光线，为渲染和与场景交互提供了必要的功能。*/
+
+  initControls() {
+    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.minDistance = 10;
+    this.controls.maxDistance = 80;
+  }
+  initRenderer() {
+    let pixelRatio = window.devicePixelRatio;
+    let AA = true;
+    if (pixelRatio > 1) {AA = false;}
+    const canvas = document.querySelector("[data-canvas]");
+    this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: AA, powerPreference: "high-performance" });
+    this.renderer.setSize(container.width, container.height);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    //renderer.setClearColor(0xc5f5f5, 0);
+    this.renderer.physicallyCorrectLights; /*accurate lighting that uses SI units.*/
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.soft = true;
+  }
+  initLights() {
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.4, 100);
+    this.light = new THREE.HemisphereLight(0xffffff, 0xb3858c, 0.9);
+
+    this.scene.add(this.light);
+    this.scene.add(this.directionalLight);
+
+    this.directionalLight.position.set(10, 12, 8);
+    this.directionalLight.castShadow = true;
+    this.directionalLight.receiveShadow = true;
+    this.directionalLight.shadow.mapSize.width = 512; // default
+    this.directionalLight.shadow.mapSize.height = 512; // default
+    this.directionalLight.shadow.camera.near = 0.5; // default
+    this.directionalLight.shadow.camera.far = 500;
+  }
+  render() {
+    this.stats.begin();
+    requestAnimationFrame(this.render.bind(this));
+    this.renderer.render(this.scene, this.camera);
+    this.stats.end();
+  }
+  init() {
+    this.initStats();
+    this.initScene();
+    this.initCamera();
+    this.initRenderer();
+    this.initControls();
+    this.initLights();
+  }}
+
+
+class Island {
+  constructor(scenesss, params) {
+    this.params = {
+      x: 0,
+      y: 0,
+      z: 0,
+      herbs: 2,
+      ...params };
+
+
+    // Create group and add to scene
+    this.island = new THREE.Group();
+    scenesss.add(this.island);
+
+    // Position according to params
+    this.island.position.x = this.params.x;
+    this.island.position.y = this.params.y;
+    this.island.position.z = this.params.z;
+
+    // TEXTURES
+    this.cloudMaterial = new THREE.MeshPhongMaterial({ color: 0xdef9ff, transparent: true, opacity: 0.8, flatShading: true });
+    this.greenMaterial = new THREE.MeshPhongMaterial({ color: 0x379351, flatShading: true });
+    this.earthMaterial = new THREE.MeshPhongMaterial({ color: 0x664e31, flatShading: true });
+    this.stoneMaterial = new THREE.MeshLambertMaterial({ color: 0x9eaeac });
+  }
+/*在3D场景中创建地面或地形。
+
+1. 创建一个`THREE.Group()`实例，并将其赋值给`this.ground`，用于容纳地面的各个元素。
+
+2. 使用`THREE.CylinderGeometry`创建一个圆柱几何体`geoGround`，参数分别为底部半径7，顶部半径2，高度9，径向分段数12，高度分段数5。
+
+3. 调用`jitter(geoGround, 0.6)`函数，对`geoGround`进行一定程度的随机扰动。
+
+4. 使用`geoGround.translate(0, -0.5, 0)`将`geoGround`沿着指定的方向进行平移。
+
+5. 使用`new THREE.Mesh(geoGround, this.earthMaterial)`创建一个地球网格`earth`，使用`geoGround`作为几何体，`this.earthMaterial`作为材质。
+
+6. 使用`THREE.CylinderGeometry`创建一个圆柱几何体`geoGreen`，参数类似于上面的`geoGround`，并对其进行随机扰动。
+
+7. 使用`geoGreen.translate(0, 3.1, 0)`将`geoGreen`进行平移。
+
+8. 使用`new THREE.Mesh(geoGreen, this.greenMaterial)`创建一个绿色网格`green`。
+
+9. 使用`THREE.TetrahedronGeometry`创建一个四面体几何体`geoGroundParticule`，参数包括随机化的大小和细分数，并对其进行随机扰动。
+
+10. 使用`new THREE.Mesh(geoGroundParticule, this.earthMaterial)`创建一个地面颗粒网格`particule`，使用`geoGroundParticule`作为几何体，`this.earthMaterial`作为材质，并设置其缩放和位置。
+
+总的来说，这段代码用于创建地面的各个元素，并将它们组合到`this.ground`中，最终将`this.ground`添加到`this.island`中，以在3D场景中呈现地面。
+*/
+
+  drawGround() {
+    this.ground = new THREE.Group();
+    const geoGround = new THREE.CylinderGeometry(7, 2, 9, 12, 5);
+    jitter(geoGround, 0.6);
+    geoGround.translate(0, -0.5, 0);
+    const earth = new THREE.Mesh(geoGround, this.earthMaterial);
+
+    const geoGreen = new THREE.CylinderGeometry(7.4, 5.5, 3.7, 30, 2);
+    jitter(geoGreen, 0.2);
+    geoGreen.translate(0, 3.1, 0);
+    const green = new THREE.Mesh(geoGreen, this.greenMaterial);
+
+    const geoGroundParticule = new THREE.TetrahedronGeometry(randomize(0.5, 1.5), randomize(2, 3));
+    jitter(geoGroundParticule, 0.2);
+    //geoGroundParticule.translate(-5, randomize(-4, -1, true), randomize(-2, 2, true));
+    const particule = new THREE.Mesh(geoGroundParticule, this.earthMaterial);
+    particule.scale.set(randomize(1, 1.5, true), randomize(1, 1.8, true), randomize(1, 1.5, true));
+    particule.position.set(-5, randomize(-4, -1, true), randomize(-2, 2, true));
+    this.ground.add(particule);
+
+    this.ground.add(earth);
+    this.ground.add(green);
+    this.ground.position.y = -5.6;
+    shadowSupport(this.ground);
+    this.island.add(this.ground);
+  }
+/*
+1. 创建一个`THREE.Group()`实例，并将其赋值给`this.clouds`，用于容纳云的各个元素。
+2. 使用`THREE.SphereGeometry`创建一个球体几何体`geoCloud`，参数为半径2，水平分段数6，垂直分段数6。
+3. 调用`jitter(geoCloud, 0.2)`函数，对`geoCloud`进行一定程度的随机扰动。
+. 使用`new THREE.Mesh(geoCloud, this.cloudMaterial)`创建一个云网格`cloud`，使用`geoCloud`作为几何体，`this.cloudMaterial`作为材质，并设置其缩放。
+5. 使用`cloud.clone()`创建`cloud`的副本`cloud2`和`cloud3`，并分别设置它们的缩放和位置。
+6. 将`cloud`、`cloud2`和`cloud3`依次添加到`this.clouds`中。
+7. 调用`shadowSupport(this.clouds)`函数，为`this.clouds`添加阴影支持。
+8. 设置`this.clouds`的位置坐标。
+9. 将`this.clouds`添加到名为`this.island`的组中。
+10. 使用`this.clouds.clone()`创建`this.clouds`的副本`cloneCloudGroup`，并设置其缩放和位置。
+总的来说，这段代码用于创建云的各个元素，并将它们组合到`this.clouds`中，最终将`this.clouds`添加到`this.island`中，以在3D场景中呈现云。
+*/
+
+  drawCloud() {
+    this.clouds = new THREE.Group();
+
+    const geoCloud = new THREE.SphereGeometry(2, 6, 6);
+    jitter(geoCloud, 0.2);
+    const cloud = new THREE.Mesh(geoCloud, this.cloudMaterial);
+    cloud.scale.set(1, 0.8, 1);
+
+    const cloud2 = cloud.clone();
+    cloud2.scale.set(0.75, 0.5, 1);
+    cloud2.position.set(1.95, -0.5, 0);
+
+    const cloud3 = cloud.clone();
+    cloud3.scale.set(0.75, 0.5, 1);
+    cloud3.position.set(-1.85, -1, 0);
+
+    this.clouds.add(cloud);
+    this.clouds.add(cloud2);
+    this.clouds.add(cloud3);
+
+    shadowSupport(this.clouds);
+
+    this.clouds.position.x = -5;
+    this.clouds.position.y = 8;
+    this.clouds.position.z = -4.6;
+
+    this.island.add(this.clouds);
+
+    const cloneCloudGroup = this.clouds.clone();
+    cloneCloudGroup.scale.set(1, 1.2, 1.2);
+    cloneCloudGroup.position.x = 6;
+    cloneCloudGroup.position.y = -9;
+    cloneCloudGroup.position.z = 4;
+
+    this.island.add(cloneCloudGroup);
+  }
+/*
+这段代码是一个名为`drawRocks`的方法，它似乎是用于在3D场景中创建岩石的。让我来逐行解释一下：
+
+1. 创建一个`THREE.Group()`实例，并将其赋值给`this.rocks`，用于容纳岩石的各个元素。
+
+2. 使用`THREE.DodecahedronGeometry`创建一个十二面体几何体`geoRocks`，参数为半径1，细分数0。
+
+3. 注释掉了`jitter(geometry,0.6)`和`chopTop(geometry,2)`，并且没有使用`geometry.translate(0,0,0)`。
+
+4. 使用`new THREE.Mesh(geoRocks, this.stoneMaterial)`创建一个岩石网格`rock`，使用`geoRocks`作为几何体，`this.stoneMaterial`作为材质，并设置其缩放。
+
+5. 使用`rock.clone()`创建`rock`的副本`rock2`，并设置其缩放和位置。
+
+6. 将`rock`和`rock2`依次添加到`this.rocks`中。
+
+7. 设置`this.rocks`的位置坐标。
+
+8. 调用`shadowSupport(this.rocks)`函数，为`this.rocks`添加阴影支持。
+
+总的来说，这段代码用于创建岩石的各个元素，并将它们组合到`this.rocks`中，最终将`this.rocks`添加到`this.island`中，以在3D场景中呈现岩石。
+*/
+
+  drawRocks() {
+    this.rocks = new THREE.Group();
+    const geoRocks = new THREE.DodecahedronGeometry(1, 0);
+    //jitter(geometry,0.6) /*chopTop(geometry,2)*/
+    //geometry.translate(0,0,0);
+    const rock = new THREE.Mesh(geoRocks, this.stoneMaterial);
+    rock.scale.set(randomize(0.8, 1.2, true), randomize(0.5, 3, true), 1);
+    const rock2 = rock.clone();
+    rock2.scale.set(randomize(0.8, 1.2, true), randomize(0.5, 3, true), 1);
+    rock2.position.set(1.2, 0, -1.3);
+
+    this.rocks.add(rock);
+    this.rocks.add(rock2);
+    this.rocks.position.x = -5;
+    this.rocks.position.y = 0;
+    this.rocks.position.z = -2.5;
+
+    shadowSupport(this.rocks);
+    this.island.add(this.rocks);
+  }
+
+  //drawHerbs方法用于创建草药的元素，并将它们添加到this.herbs中，最终将this.herbs添加到this.island中。
+  drawHerbs(position = { x: 1.1, y: 0, z: 2 }) {
+    const width = 0.2;
+    this.herbs = new THREE.Group();
+    const geoHerbs = new THREE.ConeBufferGeometry(width, 1, 6);
+    const herb = new THREE.Mesh(geoHerbs, this.greenMaterial);
+    herb.position.set(0, -0.40, 0);
+    herb.rotation.set(0, randomize(-0.7, 0.7, true), 0);
+    this.herbs.add(herb);
+
+    let i;
+
+    for (i = 0; i < 2; i++) {
+      const herbX = herb.clone();
+      herbX.position.set(randomize(-0.5, 0.5, true), -0.40, randomize(-0.5, 0.5, true));
+      herbX.rotation.set(randomize(-0.2, 0.2, true), randomize(-0.7, 0.7, true), randomize(-0.2, 0.2, true));
+      this.herbs.add(herbX);
+    }
+
+    this.herbs.position.x = position.x;
+    this.herbs.position.y = position.y;
+    this.herbs.position.z = position.z;
+    shadowSupport(this.herbs);
+    this.island.add(this.herbs);
+  }
+//绘制
+  init() {
+    this.drawGround();
+    this.drawCloud();
+    this.drawRocks();
+
+    this.drawHerbs();
+    let i;
+    for (i = 0; i < this.params.herbs; i++) {
+      this.drawHerbs({ x: randomize(-5, 5, true), y: 0, z: randomize(-5, 5, true) });
+    }
+  }}
+
+
+class Bblock {
+    //作用是创建一个角色对象，并将其添加到场景中。同时，它初始化了角色的一些属性和材质。
+  constructor(scenesss, params) {
+    this.params = {
+      x: 0,
+      y: 0,
+      z: 0,
+      ...params };
+
+    // Create group and add to scene
+    this.bblock = new THREE.Group();
+    scenesss.add(this.bblock);
+
+    // Position according to params
+    this.bblock.position.x = this.params.x;
+    this.bblock.position.y = this.params.y;
+    this.bblock.position.z = this.params.z;
+
+    this.arms = [];
+    this.legs = [];
+
+    // TEXTURES
+    this.skinMaterial = new THREE.MeshPhongMaterial({ color: 0xffdbac, flatShading: false });
+    this.hairMaterial = new THREE.MeshPhongMaterial({ color: 0x543f3a, flatShading: false });
+    this.pantsMaterial = new THREE.MeshPhongMaterial({ color: 0x333333, flatShading: false });
+    this.sweatMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: false });
+    this.shoesMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: false });
+  }
+
+  /*函数drawHead创建一个角色头部的3D表示。它由几个网格对象组成，代表头部的不同部分，包括头部本身、头发、前发和发髻。
+  每个网格都使用特定的几何结构和材质创建，
+  并相应地定位以形成完整的头部。该函数还为发髻网格添加了阴影支持，并将所有与头部相关的网格添加到名为bblock的父3D对象中。*/
+  drawHead() {
+    // cube = new THREE.Mesh(new THREE.CubeGeometry(2, 2, 2), new THREE.MeshNormalMaterial());
+    this.head = new THREE.Mesh(new THREE.BoxBufferGeometry(2.5, 2.5, 2.5), this.skinMaterial);
+    this.head.castShadow = true;
+    this.head.receiveShadow = true;
+    this.head.position.set(0, 4.8, 0);
+
+    this.hair = new THREE.Mesh(new THREE.BoxBufferGeometry(2.95, 2.5, 2.3), this.hairMaterial);
+    this.hair.castShadow = true;
+    this.hair.receiveShadow = true;
+    this.hair.position.set(0, 5.3, -0.3);
+
+    this.hairFront = new THREE.Mesh(new THREE.BoxBufferGeometry(1.5, 0.5, 0.8), this.hairMaterial);
+    this.hairFront.castShadow = true;
+    this.hairFront.receiveShadow = true;
+    this.hairFront.position.set(0, 6.3, 0.85);
+
+    const geoHairBun = new THREE.Geometry();
+    const tuft1 = new THREE.BoxGeometry(1.3, 1.3, 1.3).translate(0, 0, 0);
+    const tuft2 = new THREE.BoxGeometry(0.8, 0.8, 0.8).translate(0, 0.5, -0.5);
+    geoHairBun.merge(tuft1);
+    geoHairBun.merge(tuft2);
+
+    this.hairBun = new THREE.Mesh(geoHairBun, this.hairMaterial);
+    this.hairBun.position.set(0, 6.3, -1.3);
+    shadowSupport(this.hairBun);
+
+    this.bblock.add(this.head);
+    this.bblock.add(this.hair);
+    this.bblock.add(this.hairFront);
+    this.bblock.add(this.hairBun);
+  }
+
+/*函数drawEyes创建了一组3D对象，代表了角色眼睛的视网膜和眉毛。
+它使用盒状几何体来创建视网膜和眉毛，并将它们添加到单独的组中。然后，该函数将视网膜和眉毛相对于头部进行定位，并将这些组添加到头部对象中。
+此外，还向眉毛组添加了阴影支持。最终，通过沿着y轴和z轴调整视网膜和眉毛的最终位置，以便它们正确地与角色的头部相对应。*/
+  drawEyes() {
+    this.retines = new THREE.Group();
+    this.eyesbrow = new THREE.Group();
+    const geoRetine = new THREE.BoxBufferGeometry(0.2, 0.5, 0.1);
+    const geoEyebrow = new THREE.BoxBufferGeometry(0.8, 0.25, 0.1);
+
+    let i;
+
+    for (i = 0; i < 2; i++) {
+      const retine = new THREE.Mesh(geoRetine, this.pantsMaterial);
+      const eyebrow = new THREE.Mesh(geoEyebrow, this.hairMaterial);
+
+      this.retines.add(retine);
+      this.eyesbrow.add(eyebrow);
+
+      const m = i % 2 === 0 ? 0.5 : -0.5;
+      retine.position.x = m;
+      eyebrow.position.x = m;
+    }
+
+    this.head.add(this.retines);
+    this.head.add(this.eyesbrow);
+
+    shadowSupport(this.eyesbrow);
+
+    this.retines.position.y = 0;
+    this.retines.position.z = 1.30;
+    this.eyesbrow.position.y = 0.7;
+    this.eyesbrow.position.z = 1.30;
+  }
+
+
+  drawBody() {
+    this.body = new THREE.Mesh(new THREE.BoxBufferGeometry(2.3, 2, 2.2), this.sweatMaterial);
+    this.body.castShadow = true;
+    this.body.receiveShadow = true;
+    this.body.position.set(0, 2.5, 0);
+    this.bblock.add(this.body);
+  }
+ /*该函数创建并为角色模型添加手臂。它使用预定义的几何形状来创建手臂和手部，然后通过两次循环来创建两只手臂。
+ 每只手臂都被添加到一个组中，然后再添加到角色的主体上。手臂被定位和旋转以适应角色模型。最后，调用一个阴影支持函数来为手臂添加阴影。*/
+  drawArms() {
+    const height = 1.9;
+    const geoArms = new THREE.BoxBufferGeometry(0.45, height, 0.85);
+    const geoHands = new THREE.BoxBufferGeometry(0.45, 0.2, 0.65);
+
+    let i;
+
+    for (i = 0; i < 2; i++) {
+      const armGroup = new THREE.Group();
+      const arm = new THREE.Mesh(geoArms, this.sweatMaterial);
+      const hand = new THREE.Mesh(geoHands, this.skinMaterial);
+
+      armGroup.add(arm);
+      armGroup.add(hand);
+      this.arms.push(armGroup);
+      this.bblock.add(armGroup);
+
+      shadowSupport(armGroup);
+
+      const m = i % 2 === 0 ? 1 : -1;
+      armGroup.position.x = m * 1.4;
+      armGroup.position.y = 3.5;
+      arm.position.y = height * -0.5;
+      hand.position.y = -height - 0.1;
+    }
+  }
+
+/*这个`drawLegs()`函数负责为角色模型创建并添加腿部。它使用预定义的几何形状来绘制裤子和脚部，然后循环两次以创建两条腿。
+每条腿都被添加到一个组中，然后再添加到角色的主体上。腿部被定位和旋转以适应角色模型。最后，调用一个阴影支持函数来为腿部添加阴影。*/
+  drawLegs() {
+    const height = 1.8;
+    const geoPants = new THREE.BoxBufferGeometry(0.9, height, 1.6);
+    const geoFoot = new THREE.BoxBufferGeometry(0.75, 0.45, 1.9);
+
+    let i;
+
+    for (i = 0; i < 2; i++) {
+      const legGroup = new THREE.Group();
+      const leg = new THREE.Mesh(geoPants, this.pantsMaterial);
+      const foot = new THREE.Mesh(geoFoot, this.shoesMaterial);
+
+      legGroup.add(leg);
+      legGroup.add(foot);
+      this.legs.push(legGroup);
+      this.bblock.add(legGroup);
+
+      shadowSupport(legGroup);
+
+      const m = i % 2 === 0 ? 0.5 : -0.5;
+      legGroup.position.x = m;
+      legGroup.position.y = 1.4;
+      leg.position.y = height * -0.45;
+      foot.position.y = -height - 0.1;
+      foot.position.z = 0.2;
+    }
+  }
+
+/*这两种方法是Bblock类的一部分，用于在3D场景中移动Bblock对象的手臂和腿部。
+
+`moveArms`方法接受一个`angle`参数，并根据角度值旋转每个手臂。它使用`degreesToRadians`函数将角度从度转换为弧度，然后根据其索引对每个手臂应用旋转。
+
+类似地，`moveLegs`方法接受一个`angle`参数，并根据角度值旋转每条腿，还使用`degreesToRadians`函数将角度从度转换为弧度，并根据其索引对每条腿应用旋转。
+
+这些方法允许根据输入或其他触发器在3D场景中动态移动Bblock的手臂和腿部。*/
+  moveArms(angle) {
+    this.arms.forEach((arm, i) => {
+      const m = i % 2 === 0 ? 1 : -1;
+      arm.rotation.x = degreesToRadians(angle * m);
+    });
+  }
+  moveLegs(angle) {
+    this.legs.forEach((leg, i) => {
+      const m = i % 2 === 0 ? 1 : -1;
+      leg.rotation.x = degreesToRadians(angle * m);
+    });
+  }
+//
+  init() {
+    this.drawHead();
+    this.drawEyes();
+    this.drawBody();
+    this.drawArms();
+    this.drawLegs();
+  }}
+
+
+
+
+/**
+* GENERATOR
+* ------------------------------------------------------------------------
+*/
+// Generate Scene
+
+/*该代码使用Three.js库设置了一个3D场景。它初始化场景，渲染场景，然后在场景中生成一个岛屿和一个Bblock（可能是一个角色或对象）。
+
+它还设置了一个触发器，监听特定元素上的输入变化，并调用Bblock的方法，根据输入值移动其手臂和腿部。
+
+另外，它设置了一个调整容器大小并在窗口调整大小时更新相机的宽高比和投影矩阵的resize事件监听器。*/
+const scene = new Scene();
+scene.init();
+scene.render();
+
+// Generate Island
+const island = new Island(scene.scene, { x: 0, y: 0, z: 0, herbs: 3 });
+island.init();
+// Generate Bblock
+const bblock = new Bblock(scene.scene);
+bblock.init();
+
+// Trigger
+const inputboth = document.querySelector("[data-input-both]");
+inputboth.addEventListener("input", e => {
+  bblock.moveArms(-e.target.value);
+  bblock.moveLegs(e.target.value);
+});
+// Resize
+window.addEventListener('resize', () => {
+  container.width = window.innerWidth;
+  container.height = window.innerHeight;
+  scene.camera.aspect = container.width / container.height;
+  scene.camera.updateProjectionMatrix();
+  scene.renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+    </script>
+
+  
+
+</body>
+
+</html>
+ 
