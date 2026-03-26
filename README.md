@@ -36,3 +36,4 @@
  [网站3](/web/3/index.html) &nbsp;&nbsp; [网站4](/web/4/index.html) &nbsp;&nbsp; [网站5](/web/5/index.html) &nbsp;&nbsp;
 
 ## 毕业设计————CT图像展开及肺小结节测量
+[手册](/Paper1/毕业设计手册.pdf)
